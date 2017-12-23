@@ -1,6 +1,6 @@
 <div class="text-center">
 
-    <!--<h1>state {{state}}</h1>-->
+    <h1 class="text-center">Welcome to dogs pics app! :)</h1>
 
     <div *ngIf="state==='not found'">
         <p>Не верная ссылка.</p>
@@ -14,13 +14,10 @@
         <option value="">Выберите породу</option>
         <option *ngFor="let breed of list" [selected]="breed===breedName" value="{{breed}}">{{breed.charAt(0).toUpperCase() + breed.slice(1)}}</option>
     </select>
-    <!---->
-    <!--<a routerLink="/{{breed}}">{{breed}}</a>-->
 
     <div *ngIf="state==='founded'">
-        <p>Порода: {{breedName}}</p>
-        <img src="{{img}}" alt="{{breedName}}">
+        <p class="breed_name">Порода: <a routerLink="/{{breedName}}">{{breedName.charAt(0).toUpperCase() + breedName.slice(1)}}</a></p>
+        <div class="img"><img src="{{img}}" alt="{{breedName}}" class="img-responsive"></div>
     </div>
-
 
 </div>
