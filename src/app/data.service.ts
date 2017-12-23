@@ -7,18 +7,7 @@ export class DataService {
   constructor(private http: HttpClient) { }
 
     public get(url: string) {
-        // return this.httpClient.get(url);
-        return this.http.get(url)//.subscribe(data => {});
+        return this.http.get(url);
     }
-
-    cars = [
-        'Ford','Chevrolet','Buick'
-    ];
-
-
-    myData() {
-        return 'This is my data, man!';
-    }
-
 
 }
