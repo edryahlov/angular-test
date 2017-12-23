@@ -25,8 +25,7 @@ export class BreedComponent implements OnInit, OnDestroy {
 
     //при выборе породы в списке
     breedSelect(breed) {
-        if (breed.match(/-/g)) {breed = BreedComponent.modifyPath(breed);} //переделывам ссылку - разные запросы на породу и под-породы
-        this.service = this.dataService.get('https://dog.ceo/api/breed/'+breed+'/images/random').subscribe(data => {
+        this.service = this.dataService.get('https://dog.ceo/api/breed/'+BreedComponent.modifyPath(breed)+'/images/random').subscribe(data => {
             this.img = data['message'];
             this.state = 'founded';
             this.breedName = BreedComponent.getBreedName(data['message']);
@@ -35,8 +34,11 @@ export class BreedComponent implements OnInit, OnDestroy {
     //вытаскиваем имя породы. в ответе его нет
     static getBreedName = breed => breed.replace(/(https:\/\/dog.ceo\/api\/img\/)(.*)\/(.*)/g,'$2');
 
-    //переделываем путь
-    static modifyPath = path => path.replace(/(\w+)-(\w+)/g,'$1\/$2');
+    //переделывам ссылку - разные запросы на породу и под-породы
+    static modifyPath = path => {
+        if (path.match(/-/g)) path = path.replace(/(\w+)-(\w+)/g,'$1\/$2');
+        return path;
+    };
 
 
   ngOnInit() {
@@ -58,13 +60,8 @@ export class BreedComponent implements OnInit, OnDestroy {
           let path:string;
           let pathDetail:string;
 
-          if (this.state === 'default') {path = 'https://dog.ceo/api/breeds/image/random';} //рандомная картинка если ничего не выбрано и нет слага
-          else {
-              //тут модифицируем запрос - если есть под-порода
-              pathDetail = params.slug;
-              if (pathDetail.match(/-/g)) {pathDetail = BreedComponent.modifyPath(pathDetail)}
-              path = 'https://dog.ceo/api/breed/' + pathDetail + '/images/random';
-          }
+          if (this.state === 'default') path = 'https://dog.ceo/api/breeds/image/random'; //рандомная картинка если ничего не выбрано и нет слага
+          else path = 'https://dog.ceo/api/breed/' + BreedComponent.modifyPath(params.slug) + '/images/random';
 
           this.service = this.dataService.get(path).subscribe(data => {
               if (data['status'] !== 'error') { //все хорошо
