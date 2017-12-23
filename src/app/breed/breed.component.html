@@ -1,5 +1,26 @@
-<p>
-  breed works! slug is {{slug}}
+<div class="text-center">
 
-    <img src="{{img}}" alt="">
-</p>
+    <!--<h1>state {{state}}</h1>-->
+
+    <div *ngIf="state==='not found'">
+        <p>Не верная ссылка.</p>
+    </div>
+
+    <div *ngIf="state==='default'">
+        <p>Выберите породу в списке ниже:</p>
+    </div>
+
+    <select name="breed_select" id="breed_select" (change)="breedSelect($event.target.value)" >
+        <option value="">Выберите породу</option>
+        <option *ngFor="let breed of list" [selected]="breed===breedName" value="{{breed}}">{{breed.charAt(0).toUpperCase() + breed.slice(1)}}</option>
+    </select>
+    <!---->
+    <!--<a routerLink="/{{breed}}">{{breed}}</a>-->
+
+    <div *ngIf="state==='founded'">
+        <p>Порода: {{breedName}}</p>
+        <img src="{{img}}" alt="{{breedName}}">
+    </div>
+
+
+</div>
