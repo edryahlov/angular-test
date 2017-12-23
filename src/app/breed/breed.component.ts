@@ -16,6 +16,7 @@ export class BreedComponent implements OnInit, OnDestroy {
     state:string;
     breedName:string;
     list:any=[];
+    service:any;
 
     constructor(
         private route: ActivatedRoute,
@@ -24,22 +25,29 @@ export class BreedComponent implements OnInit, OnDestroy {
 
     //при выборе породы в списке
     breedSelect(breed) {
-        if (breed.match(/-/g)) {breed = breed.replace(/(\w+)-(\w+)/g,'$1\/$2');} //переделывам ссылку - разные запросы на породу и под-породы
-        this.dataService.get('https://dog.ceo/api/breed/'+breed+'/images/random').subscribe(data => {
+        if (breed.match(/-/g)) {breed = BreedComponent.modifyPath(breed);} //переделывам ссылку - разные запросы на породу и под-породы
+        this.service = this.dataService.get('https://dog.ceo/api/breed/'+breed+'/images/random').subscribe(data => {
             this.img = data['message'];
             this.state = 'founded';
-            this.breedName = data['message'].replace(/(https:\/\/dog.ceo\/api\/img\/)(.*)\/(.*)/g,'$2');
+            this.breedName = BreedComponent.getBreedName(data['message']);
         });
     }
+    //вытаскиваем имя породы. в ответе его нет
+    static getBreedName = breed => breed.replace(/(https:\/\/dog.ceo\/api\/img\/)(.*)\/(.*)/g,'$2');
+
+    //переделываем путь
+    static modifyPath = path => path.replace(/(\w+)-(\w+)/g,'$1\/$2');
+
 
   ngOnInit() {
+
       this.routeSub = this.route.params.subscribe(params => {
 
           if (params.slug) this.slug = params.slug.toUpperCase();
           else this.state = 'default'
 
           //делаем запрос на список и в селект его
-          this.dataService.get('https://dog.ceo/api/breeds/list/all').subscribe(data => {
+          this.service = this.dataService.get('https://dog.ceo/api/breeds/list/all').subscribe(data => {
               for (let key in data['message']) {
                   this.list.push(key);
                   //если есть под-породы - их тоже добавляем
@@ -54,14 +62,14 @@ export class BreedComponent implements OnInit, OnDestroy {
           else {
               //тут модифицируем запрос - если есть под-порода
               pathDetail = params.slug;
-              if (pathDetail.match(/-/g)) {pathDetail = pathDetail.replace(/(\w+)-(\w+)/g,'$1\/$2')}
+              if (pathDetail.match(/-/g)) {pathDetail = BreedComponent.modifyPath(pathDetail)}
               path = 'https://dog.ceo/api/breed/' + pathDetail + '/images/random';
           }
 
-          this.dataService.get(path).subscribe(data => {
+          this.service = this.dataService.get(path).subscribe(data => {
               if (data['status'] !== 'error') { //все хорошо
                   this.img = data['message'];
-                  this.breedName = data['message'].replace(/(https:\/\/dog.ceo\/api\/img\/)(.*)\/(.*)/g,'$2');
+                  this.breedName = BreedComponent.getBreedName(data['message']);
                   this.state = 'founded';
               } else { //все не оч)
                   this.state = 'not found';
@@ -73,6 +81,7 @@ export class BreedComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy() {
       this.routeSub.unsubscribe();
+      this.service.unsubscribe(); //TODO: правильно ли отписываюсь при заборе данных?
   }
 
 }
